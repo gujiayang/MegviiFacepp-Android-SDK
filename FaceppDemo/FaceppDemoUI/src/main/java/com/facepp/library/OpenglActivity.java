@@ -42,7 +42,7 @@ public class OpenglActivity extends Activity
 
 	private boolean isStartRecorder, is3DPose, isDebug, isROIDetect, is106Points, isBackCamera, isFaceProperty,
 			isSmooth;
-	private boolean isTiming = true; // 是否是定时去刷新界面;
+	private boolean isTiming = true; // Whether or not refresh regularly;
 	private int printTime = 31;
 	private GLSurfaceView mGlSurfaceView;
 	private ICamera mICamera;
@@ -58,7 +58,7 @@ public class OpenglActivity extends Activity
 	private HashMap<String, Integer> resolutionMap;
 	private SensorEventUtil sensorUtil;
 	private float roi_ratio = 0.8f;
-	private String[] eyeStr = { "无睁", "无闭", "镜睁", "镜闭", "墨镜", "遮挡" };
+	private String[] eyeStr = { "OpenNoGlass", "ClosedNoGlass", "OpenWithGlass", "ClosedWithGlass", "DarkGlass", "Blocked" };
 	private String[] mouthStr = { "OPEN", "CLOSE", "MASK_OR_RESPIRATOR", "OTHER_OCCLUSION" };
 
 	@Override
@@ -101,12 +101,12 @@ public class OpenglActivity extends Activity
 		mHandler = new Handler(mHandlerThread.getLooper());
 
 		mGlSurfaceView = (GLSurfaceView) findViewById(R.id.opengl_layout_surfaceview);
-		mGlSurfaceView.setEGLContextClientVersion(2);// 创建一个OpenGL ES 2.0
+		mGlSurfaceView.setEGLContextClientVersion(2);// Create an OpenGL ES 2.0
 														// context
-		mGlSurfaceView.setRenderer(this);// 设置渲染器进入gl
-		// RENDERMODE_CONTINUOUSLY不停渲染
-		// RENDERMODE_WHEN_DIRTY懒惰渲染，需要手动调用 glSurfaceView.requestRender() 才会进行更新
-		mGlSurfaceView.setRenderMode(mGlSurfaceView.RENDERMODE_WHEN_DIRTY);// 设置渲染器模式
+		mGlSurfaceView.setRenderer(this);// Set renderer into gl
+		// RENDERMODE_CONTINUOUSLY Continuous rendering
+		// RENDERMODE_WHEN_DIRTY Non-continuous rendering. Call glSurfaceView.requestRender() when you need it
+		mGlSurfaceView.setRenderMode(mGlSurfaceView.RENDERMODE_WHEN_DIRTY);// Set renderer mode
 		mGlSurfaceView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -126,7 +126,7 @@ public class OpenglActivity extends Activity
 	}
 
 	/**
-	 * 开始录制
+	 * Start recording
 	 */
 	private void startRecorder() {
 		if (isStartRecorder) {
@@ -140,7 +140,7 @@ public class OpenglActivity extends Activity
 				if (isRecordSucess)
 					mICamera.actionDetect(this);
 				else
-					mDialogUtil.showDialog("该分辨率不能录制视频");
+					mDialogUtil.showDialog("Resolution not enough for recording");
 			}
 		}
 	}
@@ -200,7 +200,7 @@ public class OpenglActivity extends Activity
 				faceppConfig.detectionMode = Facepp.FaceppConfig.DETECTION_MODE_TRACKING;
 			facepp.setFaceppConfig(faceppConfig);
 		} else {
-			mDialogUtil.showDialog("打开相机失败");
+			mDialogUtil.showDialog("Camera failed to launch");
 		}
 	}
 
@@ -213,7 +213,7 @@ public class OpenglActivity extends Activity
 	}
 
 	/**
-	 * 画绿色框
+	 * Draw green framelines
 	 */
 	private void drawShowRect() {
 		mPointsMatrix.vertexBuffers = OpenGLDrawRect.drawCenterShowRect(isBackCamera, mICamera.cameraWidth,
@@ -384,16 +384,16 @@ public class OpenglActivity extends Activity
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		// 黑色背景
+		// Black background
 		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		mTextureID = OpenGLUtil.createTextureID();
 		mSurface = new SurfaceTexture(mTextureID);
-		// 这个接口就干了这么一件事，当有数据上来后会进到onFrameAvailable方法
-		mSurface.setOnFrameAvailableListener(this);// 设置照相机有数据时进入
+		// Call onFrameAvailable method when data available
+		mSurface.setOnFrameAvailableListener(this);// Call when camera data available
 		mCameraMatrix = new CameraMatrix(mTextureID);
 		mPointsMatrix = new PointsMatrix();
-		mICamera.startPreview(mSurface);// 设置预览容器
+		mICamera.startPreview(mSurface);// Set preview container
 		mICamera.actionDetect(this);
 		if (isTiming) {
 			timeHandle.sendEmptyMessageDelayed(0, printTime);
@@ -404,11 +404,11 @@ public class OpenglActivity extends Activity
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
-		// 设置画面的大小
+		// Set image size
 		GLES20.glViewport(0, 0, width, height);
 
 		float ratio = (float) width / height;
-		ratio = 1; // 这样OpenGL就可以按照屏幕框来画了，不是一个正方形了
+		ratio = 1; // Thus OpenGL will follow the size of screen, instead of using rectangles
 
 		// this projection matrix is applied to object coordinates
 		// in the onDrawFrame() method
@@ -425,7 +425,7 @@ public class OpenglActivity extends Activity
 	public void onDrawFrame(GL10 gl) {
 		final long actionTime = System.currentTimeMillis();
 		// Log.w("ceshi", "onDrawFrame===");
-		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);// 清除屏幕和深度缓存
+		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);// Clear screen and deep cache
 		float[] mtx = new float[16];
 		mSurface.getTransformMatrix(mtx);
 		mCameraMatrix.draw(mtx);
@@ -446,7 +446,7 @@ public class OpenglActivity extends Activity
 				}
 			});
 		}
-		mSurface.updateTexImage();// 更新image，会调用onFrameAvailable方法
+		mSurface.updateTexImage();// Update image, using onFrameAvailable method
 	}
 
 	Handler timeHandle = new Handler() {

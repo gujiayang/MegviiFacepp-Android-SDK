@@ -53,8 +53,8 @@ public class FaceppActionActivity extends Activity implements OnClickListener {
 	private int[] imageItemImages_blue = {R.drawable.record_blue, R.drawable.three_d_blue, R.drawable.debug_blue,
 			R.drawable.area_blue, R.drawable.point106, R.drawable.backphone, R.drawable.faceproperty_blue, R.drawable
 			.debug_blue};
-	private String[] imageItemTexts = {"录像", "3D模型", "调试信息", "区域选择", "关键点个数", "前置置摄像头", "年龄性别", "SMOOTH"};
-	private String[] editItemStrs = {"最小人脸", "相机分辨率", "检测间隔"};
+	private String[] imageItemTexts = {"Record", "3D Pose", "Debug", "Area", "Landmarks", "Front Cam", "AgeGender", "SMOOTH"};
+	private String[] editItemStrs = {"MinFace", "Resolution", "Interval"};
 	private RelativeLayout[] imageItem_Rels;
 	private RelativeLayout[] textItem_Rels;
 	private TextView[] editItemTexts;
@@ -79,7 +79,7 @@ public class FaceppActionActivity extends Activity implements OnClickListener {
 	private void init() {
 		mDialogUtil = new DialogUtil(this);
 		TextView title = (TextView) findViewById(R.id.title_layout_titleText);
-		title.setText("Face++ 功能演示");
+		title.setText("Face++ Demo App");
 		findViewById(R.id.title_layout_returnRel).setVisibility(View.GONE);
 		findViewById(R.id.landmark_enterBtn).setOnClickListener(this);
 		mInflater = LayoutInflater.from(this);
@@ -116,10 +116,10 @@ public class FaceppActionActivity extends Activity implements OnClickListener {
 			text.setTextColor(0XFFD0D0D0);
 			if (i == 5) {
 				text.setTextColor(0XFF30364C);
-				text.setText("前置摄像头");
+				text.setText("Front Cam");
 			} else if (i == 4) {
 				text.setTextColor(0XFF30364C);
-				text.setText("关键点数");
+				text.setText("Landmarks");
 			}
 		}
 
@@ -145,14 +145,14 @@ public class FaceppActionActivity extends Activity implements OnClickListener {
 			text.setTextColor(0XFF30364C);
 			image.setImageResource(imageItemImages_blue[index]);
 			if (index == 5)
-				text.setText("后置摄像头");
+				text.setText("Back Cam");
 		} else {
 			if (index != 5 && index != 4)
 				text.setTextColor(0XFFD0D0D0);
 
 			image.setImageResource(imageItemImages_gray[index]);
 			if (index == 5)
-				text.setText("前置摄像头");
+				text.setText("Front Cam");
 		}
 	}
 
@@ -161,7 +161,7 @@ public class FaceppActionActivity extends Activity implements OnClickListener {
 			if (ContextCompat.checkSelfPermission(this,
 					Manifest.permission.CAMERA)
 					!= PackageManager.PERMISSION_GRANTED) {
-				//进行权限请求
+				//Permission request
 				ActivityCompat.requestPermissions(this,
 						new String[]{Manifest.permission.CAMERA},
 						EXTERNAL_STORAGE_REQ_CAMERA_CODE);
@@ -256,7 +256,7 @@ public class FaceppActionActivity extends Activity implements OnClickListener {
 		} else if (ID == R.id.landmark_imageitem_6) {
 			if (!Facepp.getAbility(ConUtil.getFileContent(this, R
 					.raw.megviifacepp_0_4_1_model)).contains(Facepp.Ability.AGEGENDER)) {
-				ConUtil.showToast(this, "本检测器没有此项功能");
+				ConUtil.showToast(this, "Feature not available");
 				return;
 			}
 			isFaceProperty = !isFaceProperty;
